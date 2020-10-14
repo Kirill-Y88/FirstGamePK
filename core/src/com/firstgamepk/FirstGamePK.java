@@ -9,7 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class FirstGamePK extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
-	
+	float point = 0f;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
@@ -18,13 +19,18 @@ public class FirstGamePK extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0.2f, 0.6f, 0.4f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(img, 0, 0);
+		batch.setColor(0.2f, 0.3f, 0.4f, 1f);
+		batch.draw(img, 100, 100);
+		batch.setColor(0.9f, 0.3f, 0.4f, 0.5f);
+		batch.draw(img, 330, 330, 100, 100);
+		batch.draw(img, point, point);
 		batch.end();
+		point += 1;
 	}
-	
+
 	@Override
 	public void dispose () {
 		batch.dispose();
