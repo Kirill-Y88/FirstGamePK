@@ -5,14 +5,36 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
+import com.firstgamepk.math.MatrixUtils;
+import com.firstgamepk.math.Rect;
+
+import javax.swing.plaf.BorderUIResource;
 
 public class BaseScreen implements Screen, InputProcessor {
     protected SpriteBatch batch;
+    private Rect screenBounds;  //прямоугольник для описания координат в пикселях (которые по умолчанию)
+    private Rect wordBounds;  //мировая система координат (наша)
+    private Rect glBounds;  //система координат openGL
+
+    private Matrix4 worldToGl; //матрица для проецирования из wordBound в glBounds
+    private Matrix3 screenToWorld; // матрица для обработки событий
+    private Vector2 touch;
 
     @Override
     public void show() {   //срабатывает при открытии экрана
         System.out.println("show must go on!");
         batch = new SpriteBatch();
+        //batch.getProjectionMatrix().idt(); // вызываем матрицу Matrix4 и приводим ее к единичной (idt())
+        screenBounds = new Rect();
+        wordBounds = new Rect();
+        glBounds = new Rect(0,0,1f,1f);
+        worldToGl = new Matrix4();
+        screenToWorld = new Matrix3();
+        touch = new Vector2();
+
         Gdx.input.setInputProcessor(this); //передаем в LibGDX класс BaseScreen, т.е. класс которы является "InputProcessor"(пользовательские методы)
     }
 
@@ -25,6 +47,22 @@ public class BaseScreen implements Screen, InputProcessor {
     @Override
     public void resize(int width, int height) {  //срабатывает сразу после метода show
         System.out.println("int width, int height = " + width + height);
+        screenBounds.setSize(width,height); //передаем актуальные параметры окна
+        screenBounds.setLeft(0);  // смещаем точку в левый нижний угол
+        screenBounds.setBottom(0);
+
+        float aspect = width/(float)height;
+        wordBounds.setHeight(1);
+        wordBounds.setWidth(1f*aspect);
+        MatrixUtils.calcTransitionMatrix(worldToGl, wordBounds, glBounds);
+        batch.setProjectionMatrix(worldToGl);
+        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, wordBounds);
+        resize(wordBounds);
+    }
+
+
+    public void resize(Rect wordBounds) {
+        System.out.println("int width, int height = " + wordBounds.getWidth() + wordBounds.getHeight() );
     }
 
     @Override
@@ -70,21 +108,41 @@ public class BaseScreen implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {  //нажатие клавиши мыши/прикосновения (координаты, pointer - параметры мультитача, button номер кнопки при использовании мыши)
         System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY);
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld); //умножаем вектор на заданную мматрицу и переводим его в мировую систему координат
+        touchDown(touch, pointer, button);
+        return false;
+    }
+
+    public boolean touchDown(Vector2 touch, int pointer, int button) {  //нажатие клавиши мыши/прикосновения (координаты, pointer - параметры мультитача, button номер кнопки при использовании мыши)
+        System.out.println("touchUp touchX = " + touch.x + " touchY = " + touch.x);
         return false;
     }
 
     @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) { //убрали палец, отпустили мышь
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         System.out.println("touchUp screenX = " + screenX + " screenY = " + screenY);
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);
+        touchUp(touch, pointer, button);
+        return false;
+    }
+
+    public boolean touchUp(Vector2 touch, int pointer, int button) {
+        System.out.println("touchUp touch.X = " + touch.x + " touch.Y = " + touch.y);
         return false;
     }
 
     @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {  //коснулись пальцем экрана и протащили
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
         System.out.println("touchDragged screenX = " + screenX + " screenY = " + screenY);
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);
+        touchDragged(touch, pointer);
         return false;
     }
 
+    public boolean touchDragged(Vector2 touch, int pointer) {
+        System.out.println("touchDragged touch.X = " + touch.x + " touch.Y = " + touch.y);
+        return false;
+    }
     @Override
     public boolean mouseMoved(int screenX, int screenY) { //любое движение мыши
         return false;
