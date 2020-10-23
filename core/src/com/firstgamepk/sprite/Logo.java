@@ -1,32 +1,45 @@
 package com.firstgamepk.sprite;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.firstgamepk.base.Sprite;
 import com.firstgamepk.math.Rect;
 
 public class Logo extends Sprite {
-    private Vector2 vlogo = new Vector2();
+
+    private static final float V_LEN = 0.01f;
+
+    private Vector2 touch;
+    private Vector2 v;
     private Vector2 tmp;
 
-    public Logo(TextureRegion region) {
-        super(region);
+    public Logo(Texture region) {
+        super(new TextureRegion(region));
+        touch = new Vector2();
+        v = new Vector2();
+        tmp = new Vector2();
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        setHeightProportion(worldBounds.getHeight()*0.2f);
+        setHeightProportion(0.3f);
     }
 
-    public void getTouch(Vector2 touch){
-        vlogo = touch;
-        tmp = (new Vector2((vlogo)).sub(pos).scl(0.05f));
 
-    }
-    public void movieLogo(){
-        if(Math.abs(pos.len()-vlogo.len())>= 0.01f){
-            pos.add(tmp);
+    public void update(float delta) {
+        tmp.set(touch);
+        if (tmp.sub(pos).len() <= V_LEN) {
+            pos.set(touch);
+        } else {
+            pos.add(v);
         }
     }
 
+    @Override
+    public boolean touchDown(Vector2 touch, int pointer, int button) {
+        this.touch.set(touch);
+        v.set(touch.sub(pos).setLength(V_LEN));
+        return false;
+    }
 }
