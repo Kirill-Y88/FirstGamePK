@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.firstgamepk.base.BaseScreen;
 import com.firstgamepk.math.Rect;
 import com.firstgamepk.sprite.Background;
+import com.firstgamepk.sprite.MainShip;
 import com.firstgamepk.sprite.Star;
 
 
@@ -23,6 +24,8 @@ public class GameScreen extends BaseScreen {
     private Texture logo;
     private TextureRegion logoRegion;
 
+    private MainShip mainShip;
+
     @Override
     public void show() {
         super.show();
@@ -37,6 +40,7 @@ public class GameScreen extends BaseScreen {
 
         logo = new Texture("badlogic.jpg");
         logoRegion = new TextureRegion(logo, 0, 0, logo.getWidth() / 2, logo.getHeight());
+        mainShip = new MainShip(atlas);
     }
 
     @Override
@@ -54,6 +58,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.resize(worldBounds);
         }
+        mainShip.resize(worldBounds);
     }
 
     @Override
@@ -66,28 +71,33 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
-        return super.keyDown(keycode);
+        mainShip.keyDown(keycode);
+        return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        return super.keyUp(keycode);
+        mainShip.keyUp(keycode);
+        return false;
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        return super.touchDown(touch, pointer, button);
+        mainShip.touchDown(touch, pointer, button);
+        return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
-        return super.touchUp(touch, pointer, button);
+        mainShip.touchUp(touch, pointer, button);
+        return false;
     }
 
     private void update(float delta) {
         for (Star star : stars) {
             star.update(delta);
         }
+        mainShip.update(delta);
     }
 
     private void checkCollision() {
@@ -101,6 +111,7 @@ public class GameScreen extends BaseScreen {
             star.draw(batch);
         }
         batch.draw(logoRegion, 0, 0, 0.2f, 0.2f);
+        mainShip.draw(batch);
         batch.end();
     }
 }
