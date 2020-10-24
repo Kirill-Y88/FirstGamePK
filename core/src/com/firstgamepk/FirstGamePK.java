@@ -10,6 +10,7 @@ import com.firstgamepk.screen.MenuScreen;
 
 public class FirstGamePK extends Game {
 	public void create() {
-		setScreen( new MenuScreen());
+		//setScreen( new MenuScreen());
+		setScreen( new MenuScreen(this));
 	}
 }
