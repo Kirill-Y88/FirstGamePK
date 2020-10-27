@@ -15,7 +15,7 @@ public class Logo extends Sprite {
     private Vector2 tmp;
 
     public Logo(Texture region) {
-        super(new TextureRegion(region));
+        super(new TextureRegion(region), 1, 2, 2);
         touch = new Vector2();
         v = new Vector2();
         tmp = new Vector2();

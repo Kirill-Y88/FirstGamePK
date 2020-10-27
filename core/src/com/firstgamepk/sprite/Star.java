@@ -27,7 +27,7 @@ public class Star extends Sprite {
         pos.set(x, y);
     }
 
-   // @Override
+    @Override
     public void update(float delta) {
         pos.mulAdd(v, delta);
         if (getRight() < worldBounds.getLeft()) {

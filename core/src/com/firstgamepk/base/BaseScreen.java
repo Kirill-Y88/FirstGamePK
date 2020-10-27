@@ -8,113 +8,111 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+
 import com.firstgamepk.math.MatrixUtils;
 import com.firstgamepk.math.Rect;
 
-import javax.swing.plaf.BorderUIResource;
-
 public class BaseScreen implements Screen, InputProcessor {
-    protected SpriteBatch batch;
-    private Rect screenBounds;  //прямоугольник для описания координат в пикселях (которые по умолчанию)
-    private Rect wordBounds;  //мировая система координат (наша)
-    private Rect glBounds;  //система координат openGL
 
-    private Matrix4 worldToGl; //матрица для проецирования из wordBound в glBounds
-    private Matrix3 screenToWorld; // матрица для обработки событий
+    protected SpriteBatch batch;
+    private Rect screenBounds;
+    private Rect worldBounds;
+    private Rect glBounds;
+
+    private Matrix4 worldToGl;
+    private Matrix3 screenToWorld;
+
     private Vector2 touch;
 
     @Override
-    public void show() {   //срабатывает при открытии экрана
-        System.out.println("show must go on!");
+    public void show() {
+        System.out.println("show");
         batch = new SpriteBatch();
-        //batch.getProjectionMatrix().idt(); // вызываем матрицу Matrix4 и приводим ее к единичной (idt())
         screenBounds = new Rect();
-        wordBounds = new Rect();
-        glBounds = new Rect(0,0,1f,1f);
+        worldBounds = new Rect();
+        glBounds = new Rect(0, 0, 1f, 1f);
         worldToGl = new Matrix4();
         screenToWorld = new Matrix3();
         touch = new Vector2();
-
-        Gdx.input.setInputProcessor(this); //передаем в LibGDX класс BaseScreen, т.е. класс которы является "InputProcessor"(пользовательские методы)
+        Gdx.input.setInputProcessor(this);
     }
 
     @Override
-    public void render(float delta) {   //работает 60раз в секунду,
+    public void render(float delta) {
         Gdx.gl.glClearColor(0.2f, 0.6f, 0.4f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
     @Override
-    public void resize(int width, int height) {  //срабатывает сразу после метода show
-        System.out.println("int width, int height = " + width + height);
-        screenBounds.setSize(width,height); //передаем актуальные параметры окна
-        screenBounds.setLeft(0);  // смещаем точку в левый нижний угол
+    public void resize(int width, int height) {
+        System.out.println("resize width = " + width + " height = " + height);
+        screenBounds.setSize(width, height);
+        screenBounds.setLeft(0);
         screenBounds.setBottom(0);
 
-        float aspect = width/(float)height;
-        wordBounds.setHeight(1);
-        wordBounds.setWidth(1f*aspect);
-        MatrixUtils.calcTransitionMatrix(worldToGl, wordBounds, glBounds);
+        float aspect = width / (float) height;
+        worldBounds.setHeight(1f);
+        worldBounds.setWidth(1f * aspect);
+        MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
         batch.setProjectionMatrix(worldToGl);
-        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, wordBounds);
-        resize(wordBounds);
+        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
+        resize(worldBounds);
     }
 
-
-    public void resize(Rect wordBounds) {
-        System.out.println("int width, int height = " + wordBounds.getWidth() + wordBounds.getHeight() );
-    }
-
-    @Override
-    public void pause() {  // срабатывает при сворачивании экрана
-        System.out.println("pause!");
+    public void resize(Rect worldBounds) {
+        System.out.println("resize width = " + worldBounds.getWidth() + " height = " + worldBounds.getHeight());
     }
 
     @Override
-    public void resume() {  // срабатывает при разворачивании экрана
+    public void pause() {
+        System.out.println("pause");
+    }
+
+    @Override
+    public void resume() {
         System.out.println("resume");
     }
 
     @Override
-    public void hide() { //срабатывает при закрытии экрана
+    public void hide() {
         System.out.println("hide");
         dispose();
     }
 
     @Override
-    public void dispose() {  //метод не вызывается из LibGDX поэтому его нужно вызывать вручную
+    public void dispose() {
         System.out.println("dispose");
         batch.dispose();
     }
-    ////
+
     @Override
-    public boolean keyDown(int keycode) {   //нажатие клавиши, keycode - код клавиши
+    public boolean keyDown(int keycode) {
         System.out.println("keyDown keycode = " + keycode);
         return false;
     }
 
     @Override
-    public boolean keyUp(int keycode) {   //отпускание клавиши
+    public boolean keyUp(int keycode) {
         System.out.println("keyUp keycode = " + keycode);
         return false;
     }
 
     @Override
-    public boolean keyTyped(char character) {  //фиксация факта нажатия кнопки и возврат символа кнопки
+    public boolean keyTyped(char character) {
         System.out.println("keyTyped character = " + character);
         return false;
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {  //нажатие клавиши мыши/прикосновения (координаты, pointer - параметры мультитача, button номер кнопки при использовании мыши)
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY);
-        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld); //умножаем вектор на заданную мматрицу и переводим его в мировую систему координат
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);
         touchDown(touch, pointer, button);
         return false;
     }
 
-    public boolean touchDown(Vector2 touch, int pointer, int button) {  //нажатие клавиши мыши/прикосновения (координаты, pointer - параметры мультитача, button номер кнопки при использовании мыши)
-        System.out.println("touchUp touchX = " + touch.x + " touchY = " + touch.x);
+    public boolean touchDown(Vector2 touch, int pointer, int button) {
+        System.out.println("touchDown touch.X = " + touch.x + " touch.Y = " + touch.y);
         return false;
     }
 
@@ -143,13 +141,14 @@ public class BaseScreen implements Screen, InputProcessor {
         System.out.println("touchDragged touch.X = " + touch.x + " touch.Y = " + touch.y);
         return false;
     }
+
     @Override
-    public boolean mouseMoved(int screenX, int screenY) { //любое движение мыши
+    public boolean mouseMoved(int screenX, int screenY) {
         return false;
     }
 
     @Override
-    public boolean scrolled(int amount) {  //скролл вверх/низ
+    public boolean scrolled(int amount) {
         System.out.println("scrolled amount = " + amount);
         return false;
     }

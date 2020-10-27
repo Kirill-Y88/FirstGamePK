@@ -13,7 +13,6 @@ public class Background extends Sprite {
 
     @Override
     public void resize(Rect worldBounds) {
-         //Выравниваем наш фон и задаем ему высоту равную высоте экрана
         setHeightProportion(worldBounds.getHeight());
         pos.set(worldBounds.pos);
     }
