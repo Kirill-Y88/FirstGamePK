@@ -1,6 +1,8 @@
 package com.firstgamepk.sprite;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -28,6 +30,11 @@ public class MainShip extends Sprite {
     private boolean pressedLeft;
     private boolean pressedRight;
 
+    private int renderCount = 0;
+    private boolean pressedShoot = false;
+
+    Sound soundFire = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
+
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
@@ -42,6 +49,7 @@ public class MainShip extends Sprite {
         this.worldBounds = worldBounds;
         setHeightProportion(SHIP_HEIGHT);
         setBottom(worldBounds.getBottom() + MARGIN);
+
     }
 
     @Override
@@ -60,6 +68,15 @@ public class MainShip extends Sprite {
 //        } else if (getRight() < worldBounds.getLeft()) {
 //            setLeft(worldBounds.getRight());
 //        }
+
+        // if (pressedShoot)  getRenderCount();
+
+            if(renderCount > 7 && pressedShoot == true) {
+                shoot();
+                renderCount=0;
+            }
+            renderCount++;
+
     }
 
     @Override
@@ -113,7 +130,8 @@ public class MainShip extends Sprite {
                 moveRight();
                 break;
             case Input.Keys.UP:
-                shoot();
+                //shoot();
+                pressedShoot = true;
                 break;
         }
         return false;
@@ -139,6 +157,10 @@ public class MainShip extends Sprite {
                     stop();
                 }
                 break;
+            case Input.Keys.UP:
+                pressedShoot = false;
+                break;
+
         }
         return false;
     }
@@ -159,5 +181,7 @@ public class MainShip extends Sprite {
         Bullet bullet = bulletPool.obtain();
         bulletPos.set(pos.x, getTop());
         bullet.set(this, bulletRegion, bulletPos, bulletV, worldBounds, 1, 0.01f);
+        soundFire.play();
     }
+
 }
