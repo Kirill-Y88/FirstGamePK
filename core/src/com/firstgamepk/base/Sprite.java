@@ -80,3 +80,4 @@ public abstract class Sprite extends Rect {
         destroyed = false;
     }
 }
+
