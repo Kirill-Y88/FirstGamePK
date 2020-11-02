@@ -22,7 +22,7 @@ public class EnemySmallSettingsDto extends EnemySettingsDto {
         setV0(new Vector2(0f, -0.2f));
         setBulletRegion(atlas.findRegion("bulletEnemy"));
         setBulletHeight(ENEMY_SMALL_BULLET_HEIGHT);
-        setBulletV(new Vector2(0f, -0.3f));
+        setBulletV(new Vector2(0f, -0.33f));
         setBulletSound(bulletSound);
         setDamage(ENEMY_SMALL_DAMAGE);
         setReloadInterval(ENEMY_SMALL_RELOAD_INTERVAL);

@@ -106,6 +106,7 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
         mainShip.touchUp(touch, pointer, button);
+        System.out.println(" touch = " + touch.x + " " + touch.y);
         return false;
     }
 
