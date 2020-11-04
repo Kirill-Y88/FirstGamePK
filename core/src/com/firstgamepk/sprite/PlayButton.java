@@ -11,7 +11,7 @@ public class PlayButton extends BaseButton {
 
     private static final float MARGIN = 0.025f;
 
-    private final Game game;
+    private  Game game;
 
     public PlayButton(TextureAtlas atlas, Game game) {
         super(atlas.findRegion("btPlay"));
@@ -27,6 +27,6 @@ public class PlayButton extends BaseButton {
 
     @Override
     public void action() {
-        game.setScreen(new GameScreen());
+        game.setScreen(new GameScreen(game));
     }
 }
