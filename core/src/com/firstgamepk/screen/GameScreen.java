@@ -1,5 +1,6 @@
 package com.firstgamepk.screen;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 
 import com.firstgamepk.base.BaseScreen;
+import com.firstgamepk.base.MainShipListener;
 import com.firstgamepk.math.Rect;
 import com.firstgamepk.pool.BulletPool;
 import com.firstgamepk.pool.EnemyShipPool;
@@ -15,13 +17,15 @@ import com.firstgamepk.pool.ExplosionPool;
 import com.firstgamepk.sprite.Background;
 import com.firstgamepk.sprite.Bullet;
 import com.firstgamepk.sprite.EnemyShip;
+import com.firstgamepk.sprite.GameOver;
 import com.firstgamepk.sprite.MainShip;
+import com.firstgamepk.sprite.NewGame;
 import com.firstgamepk.sprite.Star;
 import com.firstgamepk.utils.EnemyEmitter;
 
 import java.util.List;
 
-public class GameScreen extends BaseScreen {
+public class GameScreen extends BaseScreen implements MainShipListener {
 
     private static final int STAR_COUNT = 64;
 
@@ -31,6 +35,8 @@ public class GameScreen extends BaseScreen {
     private Sound enemyBulletSound;
     private Sound explosionSound;
 
+    private  Game game;
+
     private Background background;
     private Star[] stars;
     private BulletPool bulletPool;
@@ -38,6 +44,14 @@ public class GameScreen extends BaseScreen {
     private ExplosionPool explosionPool;
     private MainShip mainShip;
     private EnemyEmitter enemyEmitter;
+    private GameOver gameOver;
+    private NewGame newGame;
+
+    private boolean mainShipDestroy = false;
+
+    public GameScreen(Game game) {
+        this.game = game;
+    }
 
     @Override
     public void show() {
@@ -56,8 +70,10 @@ public class GameScreen extends BaseScreen {
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas, explosionSound);
         enemyShipPool = new EnemyShipPool(bulletPool, explosionPool, worldBounds);
-        mainShip = new MainShip(atlas, bulletPool, explosionPool);
+        mainShip = new MainShip(atlas, bulletPool, explosionPool, this);
         enemyEmitter = new EnemyEmitter(worldBounds, enemyShipPool, enemyBulletSound, atlas);
+        gameOver = new GameOver(atlas);
+        newGame = new NewGame(atlas, game);
 
         music.setLooping(true);
         music.play();
@@ -80,6 +96,8 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         mainShip.resize(worldBounds);
+        gameOver.resize(worldBounds);
+        newGame.resize(worldBounds);
     }
 
     @Override
@@ -111,12 +129,16 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
         mainShip.touchDown(touch, pointer, button);
+        gameOver.touchDown(touch, pointer, button);
+        newGame.touchDown(touch, pointer, button);
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
         mainShip.touchUp(touch, pointer, button);
+        gameOver.touchUp(touch, pointer, button);
+        newGame.touchUp(touch, pointer, button);
         return false;
     }
 
@@ -124,11 +146,12 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.update(delta);
         }
+        if(!mainShipDestroy){
         bulletPool.updateActiveSprites(delta);
         enemyShipPool.updateActiveSprites(delta);
         explosionPool.updateActiveSprites(delta);
         mainShip.update(delta);
-        enemyEmitter.generate(delta);
+        enemyEmitter.generate(delta);}
     }
 
     private void checkCollision() {
@@ -179,10 +202,26 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
+        if(!mainShipDestroy){
+
         mainShip.draw(batch);
         enemyShipPool.drawActiveSprites(batch);
         bulletPool.drawActiveSprites(batch);
-        explosionPool.drawActiveSprites(batch);
+        explosionPool.drawActiveSprites(batch);}
+        else {
+            gameOver.draw(batch);
+            newGame.draw(batch);
+        }
         batch.end();
+    }
+
+    @Override
+    public boolean mainShipDestroy() {
+        List<EnemyShip> enemyShipList = enemyShipPool.getActiveObjects();
+        for (EnemyShip enemyShip : enemyShipList) {
+            enemyShip.destroy();
+            }
+        mainShipDestroy = true;
+        return true;
     }
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 
+import com.firstgamepk.base.MainShipListener;
 import com.firstgamepk.base.Ship;
 import com.firstgamepk.math.Rect;
 import com.firstgamepk.pool.BulletPool;
@@ -15,7 +16,7 @@ public class MainShip extends Ship {
     private static final float SHIP_HEIGHT = 0.15f;
     private static final float MARGIN = 0.05f;
     private static final float RELOAD_INTERVAL = 0.2f;
-    private static final int HP = 100;
+    private static final int HP = 1;
 
     private static final int INVALID_POINTER = -1;
 
@@ -24,8 +25,9 @@ public class MainShip extends Ship {
 
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
+    private MainShipListener mainShipListener;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, MainShipListener mainShipListener) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
@@ -37,6 +39,7 @@ public class MainShip extends Ship {
         this.bulletV.set(0, 0.5f);
         this.reloadInterval = RELOAD_INTERVAL;
         this.hp = HP;
+        this.mainShipListener = mainShipListener;
     }
 
     @Override
@@ -44,12 +47,16 @@ public class MainShip extends Ship {
         this.worldBounds = worldBounds;
         setHeightProportion(SHIP_HEIGHT);
         setBottom(worldBounds.getBottom() + MARGIN);
+
     }
 
     @Override
     public void update(float delta) {
         bulletPos.set(pos.x, getTop());
         super.update(delta);
+        if(hp <= 0) {
+            mainShipListener.mainShipDestroy();
+        }
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
             stop();
