@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.firstgamepk.base.Ship;
 import com.firstgamepk.math.Rect;
 import com.firstgamepk.pool.BulletPool;
+import com.firstgamepk.pool.ExplosionPool;
 
 public class MainShip extends Ship {
 
@@ -24,9 +25,10 @@ public class MainShip extends Ship {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.bulletSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
         this.bulletHeight = 0.01f;
@@ -65,6 +67,15 @@ public class MainShip extends Ship {
 
     public void dispose() {
         bulletSound.dispose();
+    }
+
+    public boolean isBulletCollision(Rect bullet) {
+        return !(
+                bullet.getRight() < getLeft()
+                        || bullet.getLeft() > getRight()
+                        || bullet.getBottom() > pos.y
+                        || bullet.getTop() < getBottom()
+        );
     }
 
     @Override
