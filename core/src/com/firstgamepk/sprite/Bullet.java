@@ -12,10 +12,12 @@ public class Bullet extends Sprite {
     private Vector2 v;
     private int damage;
     private Sprite owner;
+    private float procent;
 
     public Bullet() {
         v = new Vector2();
         regions = new TextureRegion[1];
+        procent = (float)Math.random();
     }
 
     public void set(
@@ -38,10 +40,23 @@ public class Bullet extends Sprite {
 
     @Override
     public void update(float delta) {
-        this.pos.mulAdd(v, delta);
+    if(v.y > 0f) {
+        this.pos.mulAdd(v.scl(1.0f), delta);
+        if (isOutside(worldBounds)) {
+        destroy();
+        }
+    }else {
+        if(procent > 0.75){
+        this.pos.mulAdd(v.scl(1.02f), delta);
+        }else {
+            this.pos.mulAdd(v.scl(1.0f), delta);
+        }
         if (isOutside(worldBounds)) {
             destroy();
         }
+
+    }
+
     }
 
     public int getDamage() {
